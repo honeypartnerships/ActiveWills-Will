@@ -45,7 +45,6 @@
       gap: 20px;
     }
 
-    /* Dark navy logo header (like email) */
     .logo-bar{
       background:#0f172a;
       padding:26px 20px 22px 20px;
@@ -107,6 +106,13 @@
       color: var(--muted);
       margin-bottom: 6px;
       font-weight:600;
+    }
+
+    .helper-text{
+      font-size:12px;
+      color:#6b7280;
+      margin-top:6px;
+      line-height:1.4;
     }
 
     input, textarea, select{
@@ -198,7 +204,7 @@
 
       <div class="title">
         <h1>Request a call back</h1>
-        <p>Fill in your details and we will be in touch.</p>
+        <p>Please enter the required details below and a member of our team will contact you shortly.</p>
       </div>
 
     </div>
@@ -206,23 +212,25 @@
     <div class="card">
       <form id="leadForm">
 
-        <!-- Honeypot -->
         <input class="hidden" type="text" id="company" name="company" autocomplete="off" tabindex="-1" />
 
         <div class="grid">
           <div class="row">
             <label>Full name</label>
             <input name="full_name" type="text" required />
+            <div class="helper-text">Please enter your full name as it appears on your documents.</div>
           </div>
 
           <div class="row">
             <label>Email</label>
             <input name="email" type="email" required />
+            <div class="helper-text">We will use this email address to confirm your appointment if needed.</div>
           </div>
 
           <div class="row">
             <label>Phone</label>
             <input name="phone" type="tel" required />
+            <div class="helper-text">Please provide the best contact number for your requested time.</div>
           </div>
 
           <div class="row">
@@ -233,6 +241,7 @@
               <option value="No">No</option>
               <option value="Not sure">Not sure</option>
             </select>
+            <div class="helper-text">This helps us prepare for your consultation.</div>
           </div>
 
           <div class="row">
@@ -240,7 +249,7 @@
             <input name="callback_date" type="date" required />
             <div class="callout">
               Our callback service is available Monday to Friday, 09:00 – 17:00.
-              Please select a weekday so we can contact you to discuss your enquiry.
+              Please select a weekday so we can contact you.
             </div>
           </div>
 
@@ -251,12 +260,14 @@
               <option value="09:00 - 13:00">09:00 - 13:00</option>
               <option value="13:00 - 17:00">13:00 - 17:00</option>
             </select>
+            <div class="helper-text">We will aim to call you within your selected time window.</div>
           </div>
         </div>
 
         <div class="row">
           <label>Message (optional)</label>
           <textarea name="message" placeholder="Anything we should know before we call?"></textarea>
+          <div class="helper-text">You can share any additional details that may help our team prepare.</div>
         </div>
 
         <div class="important">
@@ -280,12 +291,10 @@
 
   <script>
     const WEBHOOK_URL = "https://ng-honey.app.n8n.cloud/webhook/Activewills-upsell";
-
     const FORM_TOKEN = "9f7c2b4e8a1d6f3c9b0e2a7d5c4f8b1a6e3c9d7b2a4f6e1c8b0d3f5a7e2c9b4";
 
     document.getElementById("leadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const statusEl = document.getElementById("status");
       statusEl.textContent = "Submitting...";
 
