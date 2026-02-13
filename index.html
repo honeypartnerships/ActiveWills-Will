@@ -15,9 +15,6 @@
       --brand:#018aa5;
       --shadow: 0 12px 30px rgba(2,6,23,.10);
       --radius: 16px;
-
-      --info-bg:#fff7ed;
-      --info-border:#f59e0b;
       --danger:#dc2626;
     }
 
@@ -55,18 +52,23 @@
       box-shadow: 0 10px 24px rgba(2,6,23,.18);
     }
 
+    @media (max-width: 720px){
+      .logo-bar{
+        max-width: 520px;
+        padding: 18px 16px 16px 16px;
+      }
+      .wrap{
+        margin: 24px auto;
+        padding: 14px;
+      }
+    }
+
     .brand-logo{
       width:220px;
       max-width:100%;
       height:auto;
       display:block;
       margin:0 auto;
-    }
-
-    .logo-subtext{
-      margin-top:8px;
-      font-size:13px;
-      color:#d1d5db;
     }
 
     .title h1{
@@ -96,6 +98,7 @@
 
     @media (max-width: 720px){
       .grid{ grid-template-columns:1fr; }
+      .card{ padding: 20px; }
     }
 
     .row{ margin-bottom: 18px; }
@@ -134,14 +137,11 @@
       resize: vertical;
     }
 
-    .callout{
-      margin-top: 10px;
-      background: var(--info-bg);
-      border-left: 4px solid var(--info-border);
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.4;
+    .error-text{
+      font-size:12px;
+      color: var(--danger);
+      margin-top:6px;
+      display:none;
     }
 
     .important{
@@ -194,9 +194,6 @@
     <div class="header">
       <div class="logo-bar">
         <img class="brand-logo" src="./activewills-logo.png" alt="ActiveWills" />
-        <div class="logo-subtext">
-          Welcome to Active Wills
-        </div>
       </div>
 
       <div class="title">
@@ -213,23 +210,17 @@
         <div class="grid">
           <div class="row">
             <label>Full name <span class="required">*</span></label>
-            <input name="full_name" type="text"
-              placeholder="Please enter your full name as it appears on your documents"
-              required />
+            <input name="full_name" type="text" placeholder="Please enter your full name" required />
           </div>
 
           <div class="row">
             <label>Email <span class="required">*</span></label>
-            <input name="email" type="email"
-              placeholder="Enter your email address so we can confirm your appointment"
-              required />
+            <input name="email" type="email" placeholder="Please enter your email address" required />
           </div>
 
           <div class="row">
             <label>Phone <span class="required">*</span></label>
-            <input name="phone" type="tel"
-              placeholder="Please provide the best contact number for your requested time"
-              required />
+            <input name="phone" type="tel" placeholder="Please enter your phone number" required />
           </div>
 
           <div class="row">
@@ -244,10 +235,9 @@
 
           <div class="row">
             <label>Preferred callback date <span class="required">*</span></label>
-            <input name="callback_date" type="date" required />
-            <div class="callout">
-              Our callback service is available Monday to Friday, 09:00 – 17:00.
-              Please select a weekday so we can contact you.
+            <input id="callback_date" name="callback_date" type="date" required />
+            <div id="dateError" class="error-text">
+              Please select a weekday (Monday to Friday).
             </div>
           </div>
 
@@ -263,13 +253,12 @@
 
         <div class="row">
           <label>Additional details (optional)</label>
-          <textarea name="message"
-            placeholder="Please share any additional information that may help our team prepare before calling you."></textarea>
+          <textarea name="message" placeholder="Any additional details we should know?"></textarea>
         </div>
 
         <div class="important">
           Important: Our callback service is available Monday to Friday, 09:00 – 17:00.
-          Before you submit, please store this number 0800 098 7830 so you know when your assigned agent is calling at your chosen time.
+          Please store this number 0800 098 7830 so you know when our team is calling.
         </div>
 
         <input type="hidden" name="source" value="activewills-lpa-to-will-upsell" />
@@ -289,6 +278,21 @@
   <script>
     const WEBHOOK_URL = "https://ng-honey.app.n8n.cloud/webhook/Activewills-upsell";
     const FORM_TOKEN = "9f7c2b4e8a1d6f3c9b0e2a7d5c4f8b1a6e3c9d7b2a4f6e1c8b0d3f5a7e2c9b4";
+
+    const dateInput = document.getElementById("callback_date");
+    const dateError = document.getElementById("dateError");
+
+    dateInput.addEventListener("change", function(){
+      const selectedDate = new Date(this.value);
+      const day = selectedDate.getUTCDay();
+
+      if(day === 0 || day === 6){
+        this.value = "";
+        dateError.style.display = "block";
+      } else {
+        dateError.style.display = "none";
+      }
+    });
 
     document.getElementById("leadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
