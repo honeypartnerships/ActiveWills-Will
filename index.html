@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ActiveWills | Request a call back</title>
 
-  <!-- Flatpickr (date picker with disabled weekends) -->
+  <!-- Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
   <style>
@@ -18,7 +18,6 @@
       --brand:#018aa5;
       --shadow: 0 12px 30px rgba(2,6,23,.10);
       --radius: 16px;
-
       --danger:#dc2626;
     }
 
@@ -182,14 +181,14 @@
       text-align:center;
     }
 
-    .hidden{ display:none; }
-
-    /* Flatpickr tweaks so it matches your inputs */
-    .flatpickr-input{
-      background:#fff !important;
+    .status.error{
+      color:#b91c1c;
+      font-weight:600;
     }
 
-    /* Weekends disabled will already be greyed, but make it more obvious */
+    .hidden{ display:none; }
+
+    /* Flatpickr: make disabled days more obvious */
     .flatpickr-day.flatpickr-disabled,
     .flatpickr-day.flatpickr-disabled:hover{
       color:#cbd5e1 !important;
@@ -246,7 +245,6 @@
 
           <div class="row">
             <label>Preferred callback date <span class="required">*</span></label>
-            <!-- Use text input so Flatpickr controls it consistently across mobile/desktop -->
             <input id="callback_date" name="callback_date" type="text" placeholder="Select a weekday" required />
           </div>
 
@@ -266,7 +264,7 @@
         </div>
 
         <div class="important">
-          Important: Our callback service is available Monday to Friday, 09:00 – 17:00.
+          Important: Our callback service is available Monday to Friday, 09:00 to 17:00.
           Please store this number 0800 098 7830 so you know when our team is calling.
         </div>
 
@@ -290,21 +288,19 @@
     const WEBHOOK_URL = "https://ng-honey.app.n8n.cloud/webhook/Activewills-upsell";
     const FORM_TOKEN = "9f7c2b4e8a1d6f3c9b0e2a7d5c4f8b1a6e3c9d7b2a4f6e1c8b0d3f5a7e2c9b4";
 
-    // Flatpickr: disable weekends, start from tomorrow, show a nice format
     flatpickr("#callback_date", {
       dateFormat: "d/m/Y",
-      minDate: new Date().fp_incr(1), // tomorrow
+      minDate: new Date().fp_incr(1),
       disable: [
-        function(date) {
-          // return true to disable
-          return (date.getDay() === 0 || date.getDay() === 6);
-        }
+        (date) => (date.getDay() === 0 || date.getDay() === 6)
       ]
     });
 
     document.getElementById("leadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const statusEl = document.getElementById("status");
+      statusEl.classList.remove("error");
       statusEl.textContent = "Submitting...";
 
       const company = document.getElementById("company").value;
@@ -320,17 +316,24 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Form-Token": FORM_TOKEN
+            "X-Form-Token": FORM_TOKEN,
+            "Accept": "application/json"
           },
           body: JSON.stringify(data),
         });
 
-        if (!res.ok) throw new Error("Bad response");
+        if (!res.ok) {
+          const bodyText = await res.text().catch(() => "");
+          statusEl.classList.add("error");
+          statusEl.textContent = `Submit failed (${res.status}). ${bodyText || "Please try again."}`;
+          return;
+        }
 
         statusEl.textContent = "Submitted successfully. Thank you.";
         e.target.reset();
       } catch (err) {
-        statusEl.textContent = "Something went wrong. Please try again.";
+        statusEl.classList.add("error");
+        statusEl.textContent = "Submit failed. This is usually a CORS or inactive workflow issue. Please check n8n workflow is Active and CORS headers are enabled.";
       }
     });
   </script>
